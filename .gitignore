@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Layer
+layer/nodejs/node_modules
+
+# Serverless
+.serverless/
+.env
+
+# Config files with sensitive data
+config.json
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db 
+
+config.json

@@ -1,0 +1,356 @@
+service: society-voting-app
+
+frameworkVersion: '3'
+
+custom:
+  config:
+    dev:
+      aws:
+        region: ap-south-1
+      dynamodb:
+        main_table: society-voting-app-dev-main
+      jwt:
+        secret: your-jwt-secret-key-here
+    prod:
+      aws:
+        region: ap-south-1
+      dynamodb:
+        main_table: society-voting-app-prod-main
+      jwt:
+        secret: your-jwt-secret-key-here
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${self:custom.config.${self:provider.stage}.aws.region}
+  environment:
+    DYNAMODB_MAIN_TABLE: ${self:custom.config.${self:provider.stage}.dynamodb.main_table}
+    JWT_SECRET: ${self:custom.config.${self:provider.stage}.jwt.secret}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [MainTable, Arn]
+            - Fn::Join: ['', [Fn::GetAtt: [MainTable, Arn], '/index/*']]
+        - Effect: Allow
+          Action:
+            - sns:Publish
+            - sns:SetSMSAttributes
+            - sns:GetSMSAttributes
+            - sns:CheckIfPhoneNumberIsOptedOut
+            - sns:ListPhoneNumbersOptedOut
+            - sns:OptInPhoneNumber
+            - sns:OptOutPhoneNumber
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: '*'
+
+package:
+  individually: true
+  excludeDevDependencies: false
+  patterns:
+    - '!node_modules/**'
+    - 'src/**'
+    - '!.git/**'
+    - '!.gitignore'
+    - '!package-lock.json'
+    - '!README.md'
+    - '!deploy.js'
+    - '!serverless.yml'
+    - '!config.json'
+    - '!config.template.json'
+    - '!postman_collection.json'
+
+functions:
+  login:
+    handler: src/functions/auth/index.verifyOTPAndLogin
+    events:
+      - http:
+          path: /auth/login
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+      - {Ref: MiddlewareLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/auth/index.js'
+        - 'src/functions/auth/utils.js'
+
+  requestOTP:
+    handler: src/functions/auth/index.requestOTP
+    events:
+      - http:
+          path: /auth/otp/request
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+      - {Ref: MiddlewareLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/auth/index.js'
+        - 'src/functions/auth/utils.js'
+
+  verifyOTP:
+    handler: src/functions/auth/index.verifyOTPAndLogin
+    events:
+      - http:
+          path: /auth/otp/verify
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/auth/index.js'
+        - 'src/functions/auth/utils.js'
+
+  createFlat:
+    handler: src/functions/flat/index.createFlat
+    events:
+      - http:
+          path: /flat
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/flat/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  getFlat:
+    handler: src/functions/flat/index.getFlat
+    events:
+      - http:
+          path: /flat/{flat_id}
+          method: get
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/flat/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  listFlats:
+    handler: src/functions/flat/index.listFlats
+    events:
+      - http:
+          path: /flat
+          method: get
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/flat/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  createUser:
+    handler: src/functions/user/index.createUser
+    events:
+      - http:
+          path: /user
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/user/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  addAlternateNumber:
+    handler: src/functions/user/index.addAlternateNumber
+    events:
+      - http:
+          path: /user/alternate-number
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/user/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  createPoll:
+    handler: src/functions/poll/index.createPoll
+    events:
+      - http:
+          path: /poll
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/poll/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  castVote:
+    handler: src/functions/poll/index.castVote
+    events:
+      - http:
+          path: /poll/{pollId}/vote
+          method: post
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/poll/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  getPollSummary:
+    handler: src/functions/poll/index.getPollSummary
+    events:
+      - http:
+          path: /poll/{pollId}/summary
+          method: get
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/poll/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  getPollDetails:
+    handler: src/functions/poll/index.getPollDetails
+    events:
+      - http:
+          path: /poll/{pollId}/details
+          method: get
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/poll/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+  downloadPollReport:
+    handler: src/functions/poll/index.downloadPollReport
+    events:
+      - http:
+          path: /poll/{pollId}/report
+          method: get
+          cors: true
+    layers:
+      - {Ref: SharedDependenciesLambdaLayer}
+      - {Ref: SharedCodeLambdaLayer}
+    package:
+      patterns:
+        - 'src/functions/poll/index.js'
+        - 'src/middleware/**'
+        - 'src/shared/**'
+
+layers:
+  sharedDependencies:
+    path: layer
+    name: ${self:service}-${self:provider.stage}-shared-deps
+    description: Shared dependencies for all functions
+    compatibleRuntimes:
+      - nodejs18.x
+    package:
+      patterns:
+        - '!node_modules/**'
+        - 'node_modules/@aws-sdk/**'
+        - 'node_modules/jose/**'
+        - 'node_modules/uuid/**'
+        - 'node_modules/xss-clean/**'
+        - 'node_modules/joi/**'
+        - 'node_modules/dotenv/**'
+
+  sharedCode:
+    path: src/shared
+    name: ${self:service}-${self:provider.stage}-shared-code
+    description: Shared code for all functions
+    compatibleRuntimes:
+      - nodejs18.x
+    package:
+      patterns:
+        - 'dynamodb.js'
+        - 'utils.js'
+
+  middleware:
+    path: src/middleware
+    name: ${self:service}-${self:provider.stage}-middleware
+    description: Middleware for all functions
+    compatibleRuntimes:
+      - nodejs18.x
+    package:
+      patterns:
+        - 'index.js'
+        - 'security.js'
+        - 'accessControl.js'
+
+resources:
+  Resources:
+    MainTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.config.${self:provider.stage}.dynamodb.main_table}
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+          - AttributeName: GSI1PK
+            AttributeType: S
+          - AttributeName: GSI1SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: GSI1
+            KeySchema:
+              - AttributeName: GSI1PK
+                KeyType: HASH
+              - AttributeName: GSI1SK
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-offline 

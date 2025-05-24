@@ -1,0 +1,320 @@
+{
+  "info": {
+    "name": "Society Voting App API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/auth/otp/request",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "auth", "otp", "request"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"identifier\": \"9922667597\",\n    \"type\": \"mobile\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/auth/otp/verify",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "auth", "otp", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mobile\": \"9922667597\",\n    \"otp\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/auth/login",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mobile\": \"9922667597\",\n    \"otp\": \"123456\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flats",
+      "item": [
+        {
+          "name": "Create Flat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/flat",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "flat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"pine\",\n    \"wing\": \"a\",\n    \"flat_no\": \"101\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Flat",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/flat/pine-a-101",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "flat", "pine-a-101"]
+            }
+          }
+        },
+        {
+          "name": "List Flats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/flat",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "flat"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/user",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "user"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"user_id\": 1,\n    \"type\": \"first_owner\",\n    \"f_name\": \"bhupendra\",\n    \"l_name\": \"mestry\",\n    \"mobile\": \"9922667597\",\n    \"email\": \"bhupendram4u@gmail.com\",\n    \"flat_id\": \"pine-b-902\",\n    \"page_access\": [\n        \"create_flat\",\n        \"get_flat\",\n        \"create_user\",\n        \"add_alternate_number\",\n        \"create_poll\",\n        \"vote_poll\",\n        \"poll_summary\",\n        \"poll_details\",\n        \"poll_report\",\n        \"login\",\n        \"request_otp\",\n        \"verify_otp\"\n    ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Alternate Number",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/user/alternate-number",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "user", "alternate-number"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mobile\": \"9022568823\",\n    \"flat_id\": \"pine-b-902\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Polls",
+      "item": [
+        {
+          "name": "Create Poll",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/poll",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "poll"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"polling_name\": \"society formation\",\n    \"created_by\": 1,\n    \"last_date\": \"2025-05-19\",\n    \"options\": [\n        \"separate wing\",\n        \"combine wing\"\n    ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Cast Vote",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/poll/1/vote",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "poll", "1", "vote"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"option_id\": 1,\n    \"flat_id\": \"pine-b-902\",\n    \"user_id\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Poll Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/poll/1/summary",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "poll", "1", "summary"]
+            }
+          }
+        },
+        {
+          "name": "Get Poll Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/poll/1/details",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "poll", "1", "details"]
+            }
+          }
+        },
+        {
+          "name": "Download Poll Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://k4vnm9mff0.execute-api.ap-south-1.amazonaws.com/dev/poll/1/report",
+              "protocol": "https",
+              "host": ["k4vnm9mff0", "execute-api", "ap-south-1", "amazonaws", "com"],
+              "path": ["dev", "poll", "1", "report"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": "your-jwt-token-here"
+    }
+  ]
+} 
