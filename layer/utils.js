@@ -1,28 +1,38 @@
 const { v4: uuidv4 } = require('uuid');
-const { SignJWT } = require('jose');
 
-const generateRequestId = () => {
-  return uuidv4();
-};
-
-const generateToken = async (user) => {
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  const token = await new SignJWT({ 
-    sub: user.id,
-    email: user.email,
-    phone: user.phone,
-    flat_id: user.flat_id,
-    role: user.role
+// Common response formatter
+const formatResponse = (statusCode, body, requestId = uuidv4()) => ({
+  statusCode,
+  body: JSON.stringify({
+    ...body,
+    requestId
   })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('24h')
-    .sign(secret);
-  
-  return token;
+});
+
+// Error response formatter
+const formatError = (statusCode, message, requestId = uuidv4()) => 
+  formatResponse(statusCode, { message }, requestId);
+
+// Request logger
+const logRequest = (message, requestId) => {
+  console.log(`[${requestId}] ${message}`);
 };
+
+// Error logger
+const logError = (message, error, requestId) => {
+  console.error(`[${requestId}] ${message}:`, error);
+  if (error.stack) {
+    console.error(`[${requestId}] Stack:`, error.stack);
+  }
+};
+
+// Generate new request ID
+const generateRequestId = () => uuidv4();
 
 module.exports = {
-  generateRequestId,
-  generateToken
+  formatResponse,
+  formatError,
+  logRequest,
+  logError,
+  generateRequestId
 }; 

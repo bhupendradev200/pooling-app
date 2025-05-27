@@ -58,20 +58,20 @@ provider:
           Resource: '*'
 
 package:
-  individually: true
-  excludeDevDependencies: false
   patterns:
-    - '!node_modules/**'
-    - 'src/**'
     - '!.git/**'
     - '!.gitignore'
-    - '!package-lock.json'
     - '!README.md'
     - '!deploy.js'
     - '!serverless.yml'
     - '!config.json'
     - '!config.template.json'
     - '!postman_collection.json'
+    - '!node_modules/**'
+    - 'src/**'
+    - 'layer/**'
+    - 'package.json'
+    - 'package-lock.json'
 
 functions:
   login:
@@ -84,11 +84,6 @@ functions:
     layers:
       - {Ref: SharedDependenciesLambdaLayer}
       - {Ref: SharedCodeLambdaLayer}
-      - {Ref: MiddlewareLambdaLayer}
-    package:
-      patterns:
-        - 'src/functions/auth/index.js'
-        - 'src/functions/auth/utils.js'
 
   requestOTP:
     handler: src/functions/auth/index.requestOTP
@@ -100,7 +95,6 @@ functions:
     layers:
       - {Ref: SharedDependenciesLambdaLayer}
       - {Ref: SharedCodeLambdaLayer}
-      - {Ref: MiddlewareLambdaLayer}
     package:
       patterns:
         - 'src/functions/auth/index.js'
@@ -283,41 +277,29 @@ functions:
 
 layers:
   sharedDependencies:
-    path: layer
+    path: layer/nodejs
     name: ${self:service}-${self:provider.stage}-shared-deps
     description: Shared dependencies for all functions
     compatibleRuntimes:
       - nodejs18.x
     package:
       patterns:
-        - '!node_modules/**'
-        - 'node_modules/@aws-sdk/**'
-        - 'node_modules/jose/**'
-        - 'node_modules/uuid/**'
-        - 'node_modules/xss-clean/**'
-        - 'node_modules/joi/**'
-        - 'node_modules/dotenv/**'
+        - 'node_modules/**'
+        - 'package.json'
+        - 'package-lock.json'
 
   sharedCode:
-    path: src/shared
+    path: layer
     name: ${self:service}-${self:provider.stage}-shared-code
     description: Shared code for all functions
     compatibleRuntimes:
       - nodejs18.x
     package:
       patterns:
-        - 'dynamodb.js'
+        - '*.js'
         - 'utils.js'
-
-  middleware:
-    path: src/middleware
-    name: ${self:service}-${self:provider.stage}-middleware
-    description: Middleware for all functions
-    compatibleRuntimes:
-      - nodejs18.x
-    package:
-      patterns:
-        - 'index.js'
+        - 'dynamodb.js'
+        - 'middleware.js'
         - 'security.js'
         - 'accessControl.js'
 

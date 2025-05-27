@@ -1,7 +1,6 @@
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
 const { SNSClient, PublishCommand } = require('@aws-sdk/client-sns');
-const { SignJWT, jwtVerify } = require('jose');
-const { v4: uuidv4 } = require('uuid');
+const { logError } = require('./utils');
 const { putItem, getItem, updateItem } = require('./dynamodb');
 
 const sesClient = new SESClient({});
@@ -35,7 +34,7 @@ const sendEmailOTP = async (email, otp) => {
     await sesClient.send(new SendEmailCommand(params));
     return true;
   } catch (error) {
-    console.error('Error sending email OTP:', error);
+    logError('Error sending email OTP', error);
     return false;
   }
 };
@@ -51,7 +50,7 @@ const sendSMSOTP = async (mobile, otp) => {
     await snsClient.send(new PublishCommand(params));
     return true;
   } catch (error) {
-    console.error('Error sending SMS OTP:', error);
+    logError('Error sending SMS OTP', error);
     return false;
   }
 };
@@ -95,41 +94,10 @@ const verifyOTP = async (identifier, otp) => {
   return true;
 };
 
-// Generate JWE token
-const generateToken = async (user) => {
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  
-  const token = await new SignJWT({
-    sub: user.mobile,
-    role: user.role,
-    flat_id: user.flat_id,
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('24h')
-    .sign(secret);
-
-  return token;
-};
-
-// Verify JWE token
-const verifyToken = async (token) => {
-  try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    return payload;
-  } catch (error) {
-    console.error('Token verification error:', error);
-    return null;
-  }
-};
-
 module.exports = {
   generateOTP,
   sendEmailOTP,
   sendSMSOTP,
   storeOTP,
-  verifyOTP,
-  generateToken,
-  verifyToken,
+  verifyOTP
 }; 
