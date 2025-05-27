@@ -6,7 +6,7 @@ const {
   storeOTP,
   verifyOTP,
   generateToken,
-} = require('./utils');
+} = require('/opt/nodejs/utils');
 const { 
   validateRequest, 
   errorHandler, 
@@ -73,7 +73,14 @@ const requestOTPHandler = async (event) => {
     const users = await queryGSI(`EMAIL#${identifier}`, 'METADATA');
     user = users[0];
   } else {
-    user = await getItem(`USER#${identifier}`, 'METADATA');
+    user = await getItem({
+      TableName: process.env.DYNAMODB_MAIN_TABLE,
+      Key: {
+        PK: `USER#${identifier}`,
+        SK: 'METADATA'
+      }
+    });
+    user = user.Item;
   }
 
   if (!user) {
@@ -141,7 +148,14 @@ const verifyOTPAndLoginHandler = async (event) => {
     const users = await queryGSI(`EMAIL#${identifier}`, 'METADATA');
     user = users[0];
   } else {
-    user = await getItem(`USER#${identifier}`, 'METADATA');
+    user = await getItem({
+      TableName: process.env.DYNAMODB_MAIN_TABLE,
+      Key: {
+        PK: `USER#${identifier}`,
+        SK: 'METADATA'
+      }
+    });
+    user = user.Item;
   }
 
   if (!user) {
@@ -155,7 +169,14 @@ const verifyOTPAndLoginHandler = async (event) => {
   }
 
   // Get flat details
-  const flat = await getItem(`FLAT#${user.flat_id}`, 'METADATA');
+  const flatResult = await getItem({
+    TableName: process.env.DYNAMODB_MAIN_TABLE,
+    Key: {
+      PK: `FLAT#${user.flat_id}`,
+      SK: 'METADATA'
+    }
+  });
+  const flat = flatResult.Item;
   if (!flat) {
     return {
       statusCode: 404,
@@ -207,4 +228,4 @@ exports.verifyOTPAndLogin = compose(
   securityHeaders,
   validateRequest(),
   formatResponse
-)(verifyOTPAndLoginHandler); 
+)(verifyOTPAndLoginHandler);

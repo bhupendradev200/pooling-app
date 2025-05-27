@@ -1,7 +1,13 @@
 const { v4: uuidv4 } = require('uuid');
+const { 
+  validateRequest, 
+  errorHandler, 
+  formatResponse, 
+  compose 
+} = require('/opt/nodejs/middleware');
 
 // Request validation middleware
-const validateRequest = (schema) => async (event) => {
+const customValidateRequest = (schema) => async (event) => {
   const requestId = uuidv4();
   console.log(`[${requestId}] Validating request`);
 
@@ -47,7 +53,7 @@ const validateRequest = (schema) => async (event) => {
 };
 
 // Error handling middleware
-const errorHandler = (handler) => async (event) => {
+const customErrorHandler = (handler) => async (event) => {
   const requestId = uuidv4();
   console.log(`[${requestId}] Starting request`);
 
@@ -113,48 +119,15 @@ const authenticate = (handler) => async (event) => {
   }
 };
 
-// Response formatting middleware
-const formatResponse = (handler) => async (event) => {
-  const requestId = uuidv4();
-  console.log(`[${requestId}] Formatting response`);
-
-  try {
-    const result = await handler(event);
-    
-    // If result is already formatted, return it
-    if (result.statusCode) {
-      return result;
-    }
-
-    // Format successful response
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        data: result,
-        requestId
-      })
-    };
-  } catch (error) {
-    console.error(`[${requestId}] Response formatting error:`, error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: 'Internal server error',
-        requestId
-      })
-    };
-  }
-};
-
 // Combine multiple middleware
-const compose = (...middlewares) => (handler) => {
+const customCompose = (...middlewares) => (handler) => {
   return middlewares.reduceRight((acc, middleware) => middleware(acc), handler);
 };
 
 module.exports = {
-  validateRequest,
-  errorHandler,
+  validateRequest: customValidateRequest,
+  errorHandler: customErrorHandler,
   authenticate,
   formatResponse,
-  compose
-}; 
+  compose: customCompose
+};
